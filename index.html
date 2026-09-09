@@ -55,10 +55,9 @@
   <audio id="callAudio"></audio>
 
   <script>
-    // Get URL parameter for Cloudinary file: ?file=1 or ?file=2
     const params = new URLSearchParams(window.location.search);
     const fileId = params.get('file') || '1';
-    const storageKey = 'call_completed_file_' + fileId;
+    const key = 'call_done_' + fileId;
 
     const audioFiles = {
       '1': 'https://res.cloudinary.com/journeyfront/video/upload/v1788557464/1189/k7jwrynivzjyqiv5iilv.mp4',
@@ -71,8 +70,20 @@
     const btn = document.getElementById('startBtn');
     const status = document.getElementById('statusText');
 
-    // CHECK IF CALL WAS ALREADY COMPLETED IN THIS BROWSER
-    if (localStorage.getItem(storageKey) === 'true') {
+    // Helper functions for Cookie fallback
+    function setCookie(name, value) {
+      document.cookie = name + "=" + value + "; path=/; max-age=31536000;";
+    }
+    function getCookie(name) {
+      return document.cookie.split('; ').some(row => row.startsWith(name + '='));
+    }
+
+    // Check if played via LocalStorage, Cookie, or SessionStorage
+    const isCompleted = localStorage.getItem(key) === 'true' || 
+                        sessionStorage.getItem(key) === 'true' || 
+                        getCookie(key);
+
+    if (isCompleted) {
       btn.style.display = 'none';
       status.innerText = '🔒 You have already completed listening to this call.';
       status.className = 'status ended';
@@ -81,12 +92,16 @@
       btn.addEventListener('click', function() {
         btn.style.display = 'none';
         status.style.display = 'block';
+
+        // MARK IMMEDIATELY ON CLICK (Prevents refresh/re-click while playing)
+        localStorage.setItem(key, 'true');
+        sessionStorage.setItem(key, 'true');
+        setCookie(key, 'true');
+
         audio.play();
       });
 
       audio.addEventListener('ended', function() {
-        // PERMANENTLY MARK CALL AS COMPLETED
-        localStorage.setItem(storageKey, 'true');
         status.innerText = '🔒 Call Completed. You may close this tab.';
         status.className = 'status ended';
       });
