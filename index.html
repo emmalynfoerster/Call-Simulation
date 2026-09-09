@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Call Simulation</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f6f8;
+      color: #333;
+    }
+    .card {
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+    }
+    .btn {
+      background-color: #0066cc;
+      color: #ffffff;
+      padding: 16px 32px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn:hover { background-color: #0052a3; }
+    .status {
+      display: none;
+      font-size: 16px;
+      font-weight: 600;
+      color: #28a745;
+    }
+    .ended { color: #dc3545; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <button id="startBtn" class="btn">▶ Begin Customer Call</button>
+    <div id="statusText" class="status">🔊 Customer Call in Progress...</div>
+  </div>
+
+  <audio id="callAudio"></audio>
+
+  <script>
+    // Get URL parameter for Cloudinary file: ?file=1 or ?file=2
+    const params = new URLSearchParams(window.location.search);
+    const fileId = params.get('file');
+
+    const audioFiles = {
+      '1': 'https://res.cloudinary.com/journeyfront/video/upload/v1788557464/1189/k7jwrynivzjyqiv5iilv.mp4',
+      '2': 'https://res.cloudinary.com/journeyfront/video/upload/v1788556443/1189/oecj6mkrt8lu67qcvlkp.mp4'
+    };
+
+    const audio = document.getElementById('callAudio');
+    audio.src = audioFiles[fileId] || audioFiles['1'];
+
+    const btn = document.getElementById('startBtn');
+    const status = document.getElementById('statusText');
+
+    btn.addEventListener('click', function() {
+      btn.style.display = 'none';
+      status.style.display = 'block';
+      audio.play();
+    });
+
+    audio.addEventListener('ended', function() {
+      status.innerText = '🔒 Call Completed. You may close this tab.';
+      status.className = 'status ended';
+    });
+  </script>
+
+</body>
+</html>
